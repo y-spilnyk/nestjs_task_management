@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
 import { Task, TaskStatus } from "./task.model";
 import { v4 as uuid } from "uuid";
 import { CreateTaskDto } from "./dto/create-task.dto";
@@ -30,7 +30,9 @@ export class TasksService {
     }
 
     getTaskById(id: string): Task {
-        return this.tasks.find((task) => task.id === id);
+        const getTask = this.tasks.find((task) => task.id === id);
+        if (!getTask) throw new NotFoundException(`Task with ID "${id}" not found`);
+        return getTask;
     }
 
     createTask(createTaskDto: CreateTaskDto): Task {
@@ -45,17 +47,14 @@ export class TasksService {
         return task;
     }
 
-    updateTaskStatus(id: string, taskStatus: TaskStatus): any {
+    updateTaskStatus(id: string, status: TaskStatus): any {
         const task = this.getTaskById(id);
-        if (taskStatus) {
-            task.status = taskStatus;
-        } else {
-            throw new HttpException("Please provide a status", HttpStatus.BAD_REQUEST);
-        }
+        task.status = status;
         return task;
     }
 
     deleteTaskById(id: string): void {
-        this.tasks = this.tasks.filter((task) => task.id !== id);
+        const task = this.getTaskById(id);
+        this.tasks = this.tasks.filter((tasks) => tasks.id !== task.id);
     }
 }
