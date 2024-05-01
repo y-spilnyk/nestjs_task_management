@@ -23,7 +23,7 @@ export class TasksService {
                 if ([data.title, data.description].includes(search)) {
                     return true;
                 }
-                return false;
+                throw new NotFoundException(`Task query "${search}" not found`);
             });
         }
         return tasks;
