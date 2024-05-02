@@ -20,4 +20,8 @@ export class TasksRepository extends Repository<Task> {
         await this.save(createTask);
         return createTask;
     }
+
+    deleteTask(id: string): void {
+        this.delete(id);
+    }
 }
