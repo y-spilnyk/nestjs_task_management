@@ -3,6 +3,7 @@ import { Task } from "./task.entity";
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateTaskDto } from "./dto/create-task.dto";
 import { TaskStatus } from "./task-status.enum";
+import { UpdateTaskStatusDto } from "./dto/update-task-status.dto";
 
 @Injectable()
 export class TasksRepository extends Repository<Task> {
@@ -19,6 +20,13 @@ export class TasksRepository extends Repository<Task> {
         });
         await this.save(createTask);
         return createTask;
+    }
+
+    async updateTaskStatus(user: Task, updateTaskStatusDto: UpdateTaskStatusDto): Promise<Task> {
+        const { status } = updateTaskStatusDto;
+        user.status = status;
+        await this.save(user);
+        return user;
     }
 
     async deleteTask(id: string): Promise<void> {
