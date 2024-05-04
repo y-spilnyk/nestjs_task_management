@@ -5,6 +5,7 @@ import { CreateTaskDto } from "./dto/create-task.dto";
 import { TaskStatus } from "./task-status.enum";
 import { UpdateTaskStatusDto } from "./dto/update-task-status.dto";
 import { GetTasksFilterDto } from "./dto/get-tasks-filter.dto";
+import { User } from "src/auth/user.entity";
 
 @Injectable()
 export class TasksRepository extends Repository<Task> {
@@ -12,25 +13,28 @@ export class TasksRepository extends Repository<Task> {
         super(Task, eManager);
     }
 
-    async getTasks(getTasksFilterDto: GetTasksFilterDto): Promise<Task[]> {
+    async getTasks(getTasksFilterDto: GetTasksFilterDto, user: User): Promise<Task[]> {
         const { status, search } = getTasksFilterDto;
         const query = this.createQueryBuilder("task"); // "task" it is the database from the postgres
+        query.where({ user });
+
         if (status) {
-            query.where("task.status = :status", { status });
+            query.andWhere("task.status = :status", { status });
         }
         if (search) {
-            query.andWhere("task.title = :search", { search }).orWhere("task.description = :search", { search });
+            query.andWhere("(task.title = :search", { search }).orWhere("task.description = :search)", { search });
         }
         const tasks = await query.getMany();
         return tasks;
     }
 
-    async createTask(createTaskDto: CreateTaskDto): Promise<Task> {
+    async createTask(createTaskDto: CreateTaskDto, user: User): Promise<Task> {
         const { title, description } = createTaskDto;
-        const createTask = this.create({
+        const createTask = this.create({    
             title,
             description,
-            status: TaskStatus.OPEN
+            status: TaskStatus.OPEN,
+            user
         });
         await this.save(createTask);
         return createTask;
