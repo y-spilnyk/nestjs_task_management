@@ -2,6 +2,7 @@ import { ConflictException, Injectable, InternalServerErrorException } from "@ne
 import { EntityManager, Repository } from "typeorm";
 import { User } from "./user.entity";
 import { AuthCredentialsDto } from "./dto/create-user.dto";
+import * as bcrypt from "bcryptjs";
 
 @Injectable()
 export class UserRepository extends Repository<User> {
@@ -9,12 +10,15 @@ export class UserRepository extends Repository<User> {
         super(User, eManager);
     }
 
-    async userSignUp(authCredentialsDto: AuthCredentialsDto): Promise<User> {
+    async userSignUp(authCredentialsDto: AuthCredentialsDto): Promise<void> {
         const { email, password } = authCredentialsDto;
+
+        const salt = await bcrypt.genSalt();
+        const hashedPassword = await bcrypt.hash(password, salt);
 
         const createUser = this.create({
             email,
-            password
+            password: hashedPassword
         });
         try {
             await this.save(createUser);
@@ -25,6 +29,5 @@ export class UserRepository extends Repository<User> {
                 throw new InternalServerErrorException();
             }
         }
-        return createUser;
     }
 }
