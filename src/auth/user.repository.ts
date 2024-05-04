@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { ConflictException, Injectable, InternalServerErrorException } from "@nestjs/common";
 import { EntityManager, Repository } from "typeorm";
 import { User } from "./user.entity";
 import { AuthCredentialsDto } from "./dto/create-user.dto";
@@ -16,7 +16,15 @@ export class UserRepository extends Repository<User> {
             email,
             password
         });
-        await this.save(createUser);
+        try {
+            await this.save(createUser);
+        } catch (error) {
+            if (error.code === "23505") {
+                throw new ConflictException(`The user "${email}" is exist`);
+            } else {
+                throw new InternalServerErrorException();
+            }
+        }
         return createUser;
     }
 }
