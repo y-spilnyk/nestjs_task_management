@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, InternalServerErrorException } from "@nestjs/common";
+import { ConflictException, Injectable, InternalServerErrorException, UnauthorizedException } from "@nestjs/common";
 import { EntityManager, Repository } from "typeorm";
 import { User } from "./user.entity";
 import { AuthCredentialsDto } from "./dto/create-user.dto";
@@ -28,6 +28,17 @@ export class UserRepository extends Repository<User> {
             } else {
                 throw new InternalServerErrorException();
             }
+        }
+    }
+
+    async userSignIn(authCredentialsDto: AuthCredentialsDto): Promise<string> {
+        const { email, password } = authCredentialsDto;
+        const user = await this.findOneBy({ email });
+
+        if (user && (await bcrypt.compare(password, user.password))) {
+            return "success";
+        } else {
+            throw new UnauthorizedException("Verify your credentials");
         }
     }
 }
