@@ -1,7 +1,7 @@
 import { Body, Controller, Post } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { AuthCredentialsDto } from "./dto/create-user.dto";
-import { JwtPayload } from "./jwt-payload.interface"
+import { JwtPayload } from "./jwt-payload.interface";
 
 @Controller("auth")
 export class AuthController {
