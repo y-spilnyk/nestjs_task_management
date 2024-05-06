@@ -1,4 +1,4 @@
-import { EntityManager, Repository } from "typeorm";
+import { EntityManager, Repository, SelectQueryBuilder } from "typeorm";
 import { Task } from "./task.entity";
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateTaskDto } from "./dto/create-task.dto";
@@ -13,10 +13,13 @@ export class TasksRepository extends Repository<Task> {
         super(Task, eManager);
     }
 
+    async verifyIfUserHasRights(user: User): Promise<SelectQueryBuilder<Task>> {
+        return this.createQueryBuilder("task").where({ user });
+    }
+
     async getTasks(getTasksFilterDto: GetTasksFilterDto, user: User): Promise<Task[]> {
         const { status, search } = getTasksFilterDto;
-        const query = this.createQueryBuilder("task"); // "task" it is the database from the postgres
-        query.where({ user });
+        const query = await this.verifyIfUserHasRights(user);
 
         if (status) {
             query.andWhere("task.status = :status", { status });
@@ -31,8 +34,7 @@ export class TasksRepository extends Repository<Task> {
     }
 
     async getTaskById(id: string, user: User): Promise<Task> {
-        const userData = await this.createQueryBuilder("task")
-            .where({ user })
+        const userData = await (await this.verifyIfUserHasRights(user))
             .andWhereInIds({ id })
             .getOne();
 
@@ -64,8 +66,11 @@ export class TasksRepository extends Repository<Task> {
         return getTask;
     }
 
-    async deleteTask(id: string): Promise<void> {
-        const result = await this.delete(id);
-        if (result.affected === 0) throw new NotFoundException(`Task with ID "${id}" not found`);
+    async deleteTask(id: string, user: User): Promise<void> {
+        if (await this.verifyIfUserHasRights(user)) {
+            const result = await this.delete(id);
+            if (result.affected === 0)
+                throw new NotFoundException(`Task with ID "${id}" not found`);
+        }
     }
 }

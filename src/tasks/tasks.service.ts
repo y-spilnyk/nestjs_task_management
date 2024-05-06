@@ -33,10 +33,10 @@ export class TasksService {
         user: User
     ): Promise<Task> {
         const userTask = await this.getTaskById(id, user);
-        return await this.tasksRepository.updateTaskStatus(id, updateTaskStatusDto, user);
+        return await this.tasksRepository.updateTaskStatus(userTask.id, updateTaskStatusDto, user);
     }
 
-    async deleteTaskById(id: string): Promise<void> {
-        await this.tasksRepository.deleteTask(id);
+    async deleteTaskById(id: string, user: User): Promise<void> {        
+        await this.tasksRepository.deleteTask(id, user);
     }
 }
