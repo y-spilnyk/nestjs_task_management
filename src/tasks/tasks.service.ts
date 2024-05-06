@@ -27,10 +27,14 @@ export class TasksService {
         return getTaskByID;
     }
 
-    // async updateTaskStatus(id: string, updateTaskStatusDto: UpdateTaskStatusDto): Promise<Task> {
-    //     const user = await this.getTaskById(id);
-    //     return await this.tasksRepository.updateTaskStatus(user, updateTaskStatusDto);
-    // }
+    async updateTaskStatus(
+        id: string,
+        updateTaskStatusDto: UpdateTaskStatusDto,
+        user: User
+    ): Promise<Task> {
+        const userTask = await this.getTaskById(id, user);
+        return await this.tasksRepository.updateTaskStatus(id, updateTaskStatusDto, user);
+    }
 
     async deleteTaskById(id: string): Promise<void> {
         await this.tasksRepository.deleteTask(id);

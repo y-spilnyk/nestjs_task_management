@@ -52,11 +52,16 @@ export class TasksRepository extends Repository<Task> {
         return createTask;
     }
 
-    async updateTaskStatus(user: Task, updateTaskStatusDto: UpdateTaskStatusDto): Promise<Task> {
+    async updateTaskStatus(
+        id: string,
+        updateTaskStatusDto: UpdateTaskStatusDto,
+        user: User
+    ): Promise<Task> {
         const { status } = updateTaskStatusDto;
-        user.status = status;
-        await this.save(user);
-        return user;
+        const getTask = await this.getTaskById(id, user);
+        getTask.status = status;
+        await this.save(getTask);
+        return getTask;
     }
 
     async deleteTask(id: string): Promise<void> {
