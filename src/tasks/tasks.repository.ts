@@ -19,17 +19,17 @@ export class TasksRepository extends Repository<Task> {
 
     async getTasks(getTasksFilterDto: GetTasksFilterDto, user: User): Promise<Task[]> {
         const { status, search } = getTasksFilterDto;
-        const query = await this.verifyIfUserHasRights(user);
+        const userData = await this.verifyIfUserHasRights(user);
 
         if (status) {
-            query.andWhere("task.status = :status", { status });
+            userData.andWhere("task.status = :status", { status });
         }
         if (search) {
-            query
+            userData
                 .andWhere("(task.title = :search", { search })
                 .orWhere("task.description = :search)", { search });
         }
-        const tasks = await query.getMany();
+        const tasks = await userData.getMany();
         return tasks;
     }
 
