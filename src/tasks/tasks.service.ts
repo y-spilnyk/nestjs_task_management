@@ -22,16 +22,15 @@ export class TasksService {
         return await this.tasksRepository.createTask(createTaskDto, user);
     }
 
-    async getTaskById(id: string): Promise<Task> {
-        const getTask = await this.tasksRepository.findOneBy({ id });
-        if (!getTask) throw new NotFoundException(`Task with ID "${id}" not found`);
-        return getTask;
+    async getTaskById(id: string, user: User): Promise<Task> {
+        const getTaskByID = await this.tasksRepository.getTaskById(id, user);
+        return getTaskByID;
     }
 
-    async updateTaskStatus(id: string, updateTaskStatusDto: UpdateTaskStatusDto): Promise<Task> {
-        const user = await this.getTaskById(id);
-        return await this.tasksRepository.updateTaskStatus(user, updateTaskStatusDto);
-    }
+    // async updateTaskStatus(id: string, updateTaskStatusDto: UpdateTaskStatusDto): Promise<Task> {
+    //     const user = await this.getTaskById(id);
+    //     return await this.tasksRepository.updateTaskStatus(user, updateTaskStatusDto);
+    // }
 
     async deleteTaskById(id: string): Promise<void> {
         await this.tasksRepository.deleteTask(id);

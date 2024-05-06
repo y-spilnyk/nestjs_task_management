@@ -22,15 +22,27 @@ export class TasksRepository extends Repository<Task> {
             query.andWhere("task.status = :status", { status });
         }
         if (search) {
-            query.andWhere("(task.title = :search", { search }).orWhere("task.description = :search)", { search });
+            query
+                .andWhere("(task.title = :search", { search })
+                .orWhere("task.description = :search)", { search });
         }
         const tasks = await query.getMany();
         return tasks;
     }
 
+    async getTaskById(id: string, user: User): Promise<Task> {
+        const userData = await this.createQueryBuilder("task")
+            .where({ user })
+            .andWhereInIds({ id })
+            .getOne();
+
+        if (userData === null) throw new NotFoundException();
+        return userData;
+    }
+
     async createTask(createTaskDto: CreateTaskDto, user: User): Promise<Task> {
         const { title, description } = createTaskDto;
-        const createTask = this.create({    
+        const createTask = this.create({
             title,
             description,
             status: TaskStatus.OPEN,
