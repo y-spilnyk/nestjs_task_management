@@ -5,11 +5,13 @@ import { Task } from "./tasks/task.entity";
 import { AuthModule } from "./auth/auth.module";
 import { User } from "./auth/user.entity";
 import { ConfigModule } from "@nestjs/config";
+import { validationSchema } from "./config.schema"
 
 @Module({
     imports: [
         ConfigModule.forRoot({
-            envFilePath: `.env.stage.${process.env.STAGE}`
+            envFilePath: `.env.stage.${ process.env.STAGE }`,
+            validationSchema: validationSchema
         }),
         TasksModule,
         TypeOrmModule.forRoot({
