@@ -3,7 +3,7 @@ import { AppModule } from "./app.module";
 import { Logger, ValidationPipe } from "@nestjs/common";
 import { TransformInterceptor } from "./interceptor";
 
-const port: number = 3000;
+const port: string = process.env.PORT;
 
 async function bootstrap() {
     const logger = new Logger();
